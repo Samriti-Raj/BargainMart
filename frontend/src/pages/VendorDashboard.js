@@ -79,7 +79,7 @@ const VendorDashboard = () => {
       setError(null);
       console.log("Fetching products...");
       
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/products`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 10000
       });
@@ -137,7 +137,7 @@ const VendorDashboard = () => {
       let res;
       if (editingProduct) {
         res = await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${editingProduct._id}`,
+          `${process.env.REACT_APP_API_URL}/api/products/${editingProduct._id}`,
           data,
           {
             headers: {
@@ -152,7 +152,7 @@ const VendorDashboard = () => {
         alert("Product updated successfully!");
         setEditingProduct(null);
       } else {
-        res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, data, {
+        res = await axios.post(`${process.env.REACT_APP_API_URL}/api/products`, data, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -199,7 +199,7 @@ const VendorDashboard = () => {
     }
 
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -537,7 +537,7 @@ const VendorDashboard = () => {
                       <div className="flex items-start gap-4">
                         {product.images && product.images.length > 0 && (
                           <img
-                            src={`${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`}
+                            src={`${process.env.REACT_APP_API_URL}${product.images[0]}`}
                             alt={product.name}
                             className="w-16 h-16 object-cover rounded-lg"
                             onError={(e) => {

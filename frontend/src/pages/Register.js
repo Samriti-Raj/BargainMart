@@ -80,7 +80,7 @@ const Register = ({ onLogin }) => {
       // Remove confirmPassword from the data sent to backend
       const { confirmPassword, ...registrationData } = formData;
       
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, registrationData);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, registrationData);
 
       const userRole = res.data.user.role.toLowerCase();
       const userToken = res.data.token;

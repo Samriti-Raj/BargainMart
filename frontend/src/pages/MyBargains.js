@@ -50,7 +50,7 @@ const MyBargains = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/bargains/customer`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/bargains/customer`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 10000, // 10 second timeout
       });
@@ -80,7 +80,7 @@ const MyBargains = () => {
 
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}/accept`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${id}/accept`,
         { price },
         { 
           headers: { Authorization: `Bearer ${token}` },
@@ -116,7 +116,7 @@ const MyBargains = () => {
 
     try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}/reject`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${id}/reject`,
         {},
         { 
           headers: { Authorization: `Bearer ${token}` },
@@ -140,7 +140,7 @@ const MyBargains = () => {
       }
 
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}/message`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${id}/message`,
         { text: `Counter Offer: ₹${price}`, price: parseFloat(price) },
         { 
           headers: { Authorization: `Bearer ${token}` },
@@ -163,7 +163,7 @@ const MyBargains = () => {
     }
 
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/bargains/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 10000
       });

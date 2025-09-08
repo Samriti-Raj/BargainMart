@@ -25,7 +25,7 @@ const AuthPage = ({ onLogin }) => {   // 👈 changed from setIsLoggedIn to onLo
     try {
       let res;
       if (isRegister) {
-        res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+        res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
           ...formData,
           role,
         });
@@ -34,7 +34,7 @@ const AuthPage = ({ onLogin }) => {   // 👈 changed from setIsLoggedIn to onLo
         // Clear password after successful registration
         setFormData({ ...formData, password: "" });
       } else {
-        res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+        res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
           email: formData.email,
           password: formData.password,
         });

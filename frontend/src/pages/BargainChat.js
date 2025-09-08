@@ -80,7 +80,7 @@ const BargainChat = () => {
         let productData = null;
         try {
           const productRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/products/${state.productId}`,
+            `${process.env.REACT_APP_API_URL}/api/products/${state.productId}`,
             {
               headers: { Authorization: `Bearer ${token}` },
               timeout: 10000
@@ -102,7 +102,7 @@ const BargainChat = () => {
         // Then, start or fetch bargain
         try {
           const bargainRes = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/start`,
+            `${process.env.REACT_APP_API_URL}/api/bargains/start`,
             { 
               productId: state.productId, 
               vendorId: state.vendorId, 
@@ -160,7 +160,7 @@ const BargainChat = () => {
     setSending(true);
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${bargainId}/message`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${bargainId}/message`,
         { text: `Offer ₹${price}`, price: numericPrice },
         { 
           headers: { Authorization: `Bearer ${token}` },

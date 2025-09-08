@@ -57,7 +57,7 @@ const Checkout = ({ cart, setCart }) => {
       };
 
       try {
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, orderData, {
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/orders`, orderData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -100,7 +100,7 @@ const Checkout = ({ cart, setCart }) => {
     };
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, orderData, {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/orders`, orderData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

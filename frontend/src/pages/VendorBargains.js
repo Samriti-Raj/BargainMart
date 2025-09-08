@@ -51,7 +51,7 @@ const VendorBargains = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/bargains/vendor`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/bargains/vendor`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 10000,
       });
@@ -84,7 +84,7 @@ const VendorBargains = () => {
     setProcessingActions(prev => ({ ...prev, [id]: 'counter' }));
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}/message`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${id}/message`,
         { 
           sender: "Vendor",
           text: `Vendor proposes ₹${offerPrice}`, 
@@ -117,7 +117,7 @@ const VendorBargains = () => {
     setProcessingActions(prev => ({ ...prev, [id]: 'accept' }));
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}/accept`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${id}/accept`,
         { price: parseFloat(price) },
         { 
           headers: { Authorization: `Bearer ${token}` },
@@ -145,7 +145,7 @@ const VendorBargains = () => {
     setProcessingActions(prev => ({ ...prev, [id]: 'reject' }));
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}/reject`,
+        `${process.env.REACT_APP_API_URL}/api/bargains/${id}/reject`,
         {},
         { 
           headers: { Authorization: `Bearer ${token}` },
@@ -172,7 +172,7 @@ const VendorBargains = () => {
 
     setProcessingActions(prev => ({ ...prev, [id]: 'delete' }));
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/bargains/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/bargains/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 10000
       });
