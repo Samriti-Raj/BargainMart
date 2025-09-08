@@ -14,43 +14,71 @@ const Home = ({ isLoggedIn, onLogin }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/all`);
+        // Fix: Use correct environment variable for Create React App
+        const API_URL = process.env.REACT_APP_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        
+        const res = await axios.get(`${API_URL}/api/products/all`);
         
         // Debug: Check what the API is returning
         console.log("API Response:", res.data);
+        console.log("Response type:", typeof res.data);
         console.log("Is array?", Array.isArray(res.data));
         
-        // Handle different response formats
+        // Handle different response formats with more robust checking
         let productsData = [];
         
-        if (Array.isArray(res.data)) {
-          // If API returns array directly
-          productsData = res.data;
-        } else if (res.data && Array.isArray(res.data.products)) {
-          // If API returns { products: [...] }
-          productsData = res.data.products;
-        } else if (res.data && Array.isArray(res.data.data)) {
-          // If API returns { data: [...] }
-          productsData = res.data.data;
-        } else {
-          // If API returns something else, default to empty array
-          console.warn("Unexpected API response format:", res.data);
+        if (res.data) {
+          if (Array.isArray(res.data)) {
+            // If API returns array directly
+            productsData = res.data;
+          } else if (res.data.products && Array.isArray(res.data.products)) {
+            // If API returns { products: [...] }
+            productsData = res.data.products;
+          } else if (res.data.data && Array.isArray(res.data.data)) {
+            // If API returns { data: [...] }
+            productsData = res.data.data;
+          } else if (res.data.results && Array.isArray(res.data.results)) {
+            // If API returns { results: [...] }
+            productsData = res.data.results;
+          } else {
+            // If API returns something else, log and use empty array
+            console.warn("Unexpected API response format:", res.data);
+            console.warn("Available keys:", Object.keys(res.data));
+            productsData = [];
+          }
+        }
+        
+        // Ensure it's always an array
+        if (!Array.isArray(productsData)) {
+          console.error("Products data is not an array:", productsData);
           productsData = [];
         }
         
+        console.log("Final products array:", productsData);
+        console.log("Products count:", productsData.length);
+        
         setProducts(productsData);
-        setLoading(false);
       } catch (err) {
-        console.log("Error fetching products:", err);
-        setProducts([]); // Ensure it's always an array on error
+        console.error("Error fetching products:", err);
+        console.error("Error response:", err.response?.data);
+        console.error("Error status:", err.response?.status);
+        
+        // Always ensure products is an array on error
+        setProducts([]);
+      } finally {
         setLoading(false);
       }
     };
     
     if (!isLoggedIn) {
       fetchProducts();
+    } else {
+      setLoading(false);
     }
   }, [isLoggedIn]);
+
+  // Add safety check before rendering
+  const safeProducts = Array.isArray(products) ? products : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -311,16 +339,16 @@ const Home = ({ isLoggedIn, onLogin }) => {
                   <div key={index} className="bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl h-96 animate-pulse shadow-lg"></div>
                 ))}
               </div>
-            ) : Array.isArray(products) && products.length > 0 ? (
+            ) : safeProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
-                  {products.slice(0, 8).map((product, index) => (
+                  {safeProducts.slice(0, 8).map((product, index) => (
                     <div key={product._id || index} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:scale-105 hover:-translate-y-2">
                       <div className="relative overflow-hidden">
                         <img
                           src={
                             product.images && product.images.length > 0
-                              ? `${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`
+                              ? `${process.env.REACT_APP_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${product.images[0]}`
                               : "/api/placeholder/400/300"
                           }
                           alt={product.name || 'Product'}
@@ -458,8 +486,5 @@ const Home = ({ isLoggedIn, onLogin }) => {
 };
 
 export default Home;
-
-
-
 
 
