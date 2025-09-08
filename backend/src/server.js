@@ -17,8 +17,8 @@ const app = express();
 app.use(cors({
   origin: [
     'https://bargain-mart-dpct.vercel.app/',
-    'http://localhost:5000',
-    'https://localhost:5000'
+    'http://localhost:3000',
+    'https://localhost:3000'
   ],
   credentials: true
 }));
