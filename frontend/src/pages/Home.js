@@ -14,7 +14,7 @@ const Home = ({ isLoggedIn, onLogin }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products/all");
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/all`);
         setProducts(res.data); // Show all products
         setLoading(false);
       } catch (err) {
@@ -297,7 +297,7 @@ const Home = ({ isLoggedIn, onLogin }) => {
                         <img
   src={
     product.images && product.images.length > 0
-      ? `http://localhost:5000${product.images[0]}`
+      ? `${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`
       : "/api/placeholder/400/300"
   }
   alt={product.name}

@@ -12,7 +12,7 @@ const Products = ({ cart, setCart }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products/all")
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/all`)
       .then((res) => {
         setProducts(res.data);
         setLoading(false);
@@ -98,7 +98,7 @@ const Products = ({ cart, setCart }) => {
                     <img 
                       src={
                         product.images?.length
-                          ? `http://localhost:5000${product.images[0]}`
+                          ? `${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`
                           : "/api/placeholder/300/200"
                       }
                       alt={product.name}

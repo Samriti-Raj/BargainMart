@@ -10,7 +10,7 @@ const VendorLogin = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/vendor/login", formData);
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/vendor/login`, formData);
       
       const userRole = res.data.role.toLowerCase();
       const userToken = res.data.token;

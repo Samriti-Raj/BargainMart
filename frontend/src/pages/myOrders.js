@@ -15,7 +15,7 @@ const MyOrders = () => {
       }
 
       try {
-        const res = await axios.get("http://localhost:5000/api/orders", {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -44,9 +44,9 @@ const MyOrders = () => {
       if (imageUrl.startsWith('http')) {
         return imageUrl;
       } else if (imageUrl.startsWith('/')) {
-        return `http://localhost:5000${imageUrl}`;
+        return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
       } else {
-        return `http://localhost:5000/${imageUrl}`;
+        return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
       }
     } else if (product.images && Array.isArray(product.images) && product.images.length > 0) {
       // Handle images array
@@ -54,22 +54,22 @@ const MyOrders = () => {
       if (imageUrl.startsWith('http')) {
         return imageUrl;
       } else if (imageUrl.startsWith('/')) {
-        return `http://localhost:5000${imageUrl}`;
+        return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
       } else {
-        return `http://localhost:5000/${imageUrl}`;
+        return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
       }
     } else if (product.imageUrl) {
       // Handle imageUrl property
-      return product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5000${product.imageUrl}`;
+      return product.imageUrl.startsWith('http') ? product.imageUrl : `${process.env.NEXT_PUBLIC_API_URL}${product.imageUrl}`;
     } else if (product.productImage) {
       // Handle productImage property (sometimes used in order data)
       const imageUrl = product.productImage;
       if (imageUrl.startsWith('http')) {
         return imageUrl;
       } else if (imageUrl.startsWith('/')) {
-        return `http://localhost:5000${imageUrl}`;
+        return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
       } else {
-        return `http://localhost:5000/${imageUrl}`;
+        return `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
       }
     }
     

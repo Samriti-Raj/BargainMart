@@ -18,10 +18,10 @@ const Cart = ({ cart, setCart }) => {
     if (item.images && item.images.length > 0) {
       // Handle images array (most likely case based on your Home component)
       const imageUrl = item.images[0];
-      return imageUrl.startsWith('http') ? imageUrl : `http://localhost:5000${imageUrl}`;
+      return imageUrl.startsWith('http') ? imageUrl : `${process.env.NEXT_PUBLIC_API_URL}${imageUrl}`;
     } else if (item.image) {
       // Handle single image property
-      return item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`;
+      return item.image.startsWith('http') ? item.image : `${process.env.NEXT_PUBLIC_API_URL}${item.image}`;
     } else if (item.imageUrl) {
       // Handle imageUrl property
       return item.imageUrl;
