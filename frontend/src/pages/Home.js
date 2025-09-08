@@ -15,10 +15,34 @@ const Home = ({ isLoggedIn, onLogin }) => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/all`);
-        setProducts(res.data); // Show all products
+        
+        // Debug: Check what the API is returning
+        console.log("API Response:", res.data);
+        console.log("Is array?", Array.isArray(res.data));
+        
+        // Handle different response formats
+        let productsData = [];
+        
+        if (Array.isArray(res.data)) {
+          // If API returns array directly
+          productsData = res.data;
+        } else if (res.data && Array.isArray(res.data.products)) {
+          // If API returns { products: [...] }
+          productsData = res.data.products;
+        } else if (res.data && Array.isArray(res.data.data)) {
+          // If API returns { data: [...] }
+          productsData = res.data.data;
+        } else {
+          // If API returns something else, default to empty array
+          console.warn("Unexpected API response format:", res.data);
+          productsData = [];
+        }
+        
+        setProducts(productsData);
         setLoading(false);
       } catch (err) {
         console.log("Error fetching products:", err);
+        setProducts([]); // Ensure it's always an array on error
         setLoading(false);
       }
     };
@@ -63,7 +87,7 @@ const Home = ({ isLoggedIn, onLogin }) => {
               </h1>
 
               <p className="text-lg lg:text-xl text-gray-700 mb-8 leading-relaxed font-medium text-center">
-                🌟 Discover amazing products from verified vendors worldwide.
+                Discover amazing products from verified vendors worldwide.
                 {isLoggedIn
                   ? " Your shopping journey starts here!"
                   : " Join thousands of satisfied customers today!"}
@@ -109,7 +133,7 @@ const Home = ({ isLoggedIn, onLogin }) => {
                     <h3 className="text-2xl font-bold">Exclusive Bargaining Feature</h3>
                   </div>
                   <p className="text-lg opacity-95 leading-relaxed text-center">
-                    💬 Chat directly with vendors and negotiate the best prices! Our unique bargaining system helps you save more on every purchase.
+                    Chat directly with vendors and negotiate the best prices! Our unique bargaining system helps you save more on every purchase.
                   </p>
                 </div>
               </div>
@@ -277,7 +301,7 @@ const Home = ({ isLoggedIn, onLogin }) => {
                 Trending Products
               </h2>
               <p className="text-gray-600 text-xl max-w-3xl mx-auto leading-relaxed">
-                🚀 Discover our most popular items from trusted vendors. Login to start shopping and unlock exclusive bargaining features!
+                Discover our most popular items from trusted vendors. Login to start shopping and unlock exclusive bargaining features!
               </p>
             </div>
 
@@ -287,31 +311,28 @@ const Home = ({ isLoggedIn, onLogin }) => {
                   <div key={index} className="bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl h-96 animate-pulse shadow-lg"></div>
                 ))}
               </div>
-            ) : products.length > 0 ? (
+            ) : Array.isArray(products) && products.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
                   {products.slice(0, 8).map((product, index) => (
-                    <div key={product._id} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:scale-105 hover:-translate-y-2">
+                    <div key={product._id || index} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:scale-105 hover:-translate-y-2">
                       <div className="relative overflow-hidden">
-
                         <img
-  src={
-    product.images && product.images.length > 0
-      ? `${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`
-      : "/api/placeholder/400/300"
-  }
-  alt={product.name}
-  className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
-  onError={(e) => {
-    e.target.src = "/api/placeholder/400/300";
-  }}
-/>
-
-
+                          src={
+                            product.images && product.images.length > 0
+                              ? `${process.env.NEXT_PUBLIC_API_URL}${product.images[0]}`
+                              : "/api/placeholder/400/300"
+                          }
+                          alt={product.name || 'Product'}
+                          className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => {
+                            e.target.src = "/api/placeholder/400/300";
+                          }}
+                        />
                         
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full text-sm font-semibold shadow-lg border border-white/50">
-                          <span className="text-green-600">✓ {product.stock} in stock</span>
+                          <span className="text-green-600">✓ {product.stock || 0} in stock</span>
                         </div>
                         {index < 3 && (
                           <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
@@ -321,14 +342,14 @@ const Home = ({ isLoggedIn, onLogin }) => {
                       </div>
                       
                       <div className="p-6">
-                        <h3 className="font-bold text-xl mb-3 text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">{product.name}</h3>
+                        <h3 className="font-bold text-xl mb-3 text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">{product.name || 'Product Name'}</h3>
                         <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10 leading-5">
-                          {product.description}
+                          {product.description || 'No description available'}
                         </p>
                         
                         <div className="flex justify-between items-center mb-6">
                           <div className="flex flex-col">
-                            <span className="text-3xl font-black text-blue-600">₹{product.price}</span>
+                            <span className="text-3xl font-black text-blue-600">₹{product.price || '0'}</span>
                             <span className="text-xs text-gray-500">Best Price Guaranteed</span>
                           </div>
                           <div className="text-right">
