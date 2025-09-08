@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5000/api', // Update based on your backend
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`, // Update based on your backend
   withCredentials: true,
 });
 
