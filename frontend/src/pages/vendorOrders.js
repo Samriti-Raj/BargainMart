@@ -2,23 +2,26 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const VendorOrders = () => {
+  // State to store orders for this vendor
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
+    // Fetch vendor orders from backend
     const fetchVendorOrders = async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token"); // Get JWT token
       if (!token) {
         alert("Please login as vendor to view your orders.");
         return;
       }
 
       try {
+        // GET request to backend with Authorization header
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/orders/vendor`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setOrders(res.data);
+        setOrders(res.data); // Save orders in state
       } catch (err) {
         console.error(err.response?.data || err.message);
         alert("Failed to fetch vendor orders.");
@@ -31,6 +34,7 @@ const VendorOrders = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Orders for Your Products</h2>
+
       {orders.length === 0 ? (
         <p>No orders yet for your products.</p>
       ) : (
@@ -40,8 +44,10 @@ const VendorOrders = () => {
               <h3 className="font-semibold">Order ID: {order._id}</h3>
               <p>Status: <span className="font-semibold">{order.status}</span></p>
               <p>Total: ₹{order.totalAmount}</p>
+
               <h4 className="mt-2 font-semibold">Your Products in This Order:</h4>
               <ul className="list-disc list-inside">
+                {/* Filter products to show only the ones that belong to this vendor */}
                 {order.products
                   .filter((p) => p.vendorId === localStorage.getItem("userId"))
                   .map((item, index) => (
@@ -59,3 +65,4 @@ const VendorOrders = () => {
 };
 
 export default VendorOrders;
+
