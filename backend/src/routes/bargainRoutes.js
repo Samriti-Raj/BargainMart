@@ -1,19 +1,20 @@
-
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
-import Bargain from "../models/Bargain.js";
+import { protect } from "../middleware/authMiddleware.js"; // Middleware to ensure user is logged in (JWT verified)
+import Bargain from "../models/Bargain.js"; // Bargain Mongoose model
 
 const router = express.Router();
 
-// Start a bargain
+// ----------------------
+// Start a new bargain (customer initiates)
+// ----------------------
 router.post("/start", protect, async (req, res) => {
   const { productId, vendorId, price } = req.body;
   try {
     const bargain = await Bargain.create({
       product: productId,
-      customer: req.user.id,
+      customer: req.user.id, // logged-in customer
       vendor: vendorId,
-      messages: [{ sender: "customer", text: "Proposed a price", price }],
+      messages: [{ sender: "customer", text: "Proposed a price", price }], // first offer
       status: "ongoing",
     });
     res.json(bargain);
@@ -23,19 +24,22 @@ router.post("/start", protect, async (req, res) => {
   }
 });
 
-// Add a message (customer or vendor)
+// ----------------------
+// Add a new message to a bargain (either customer or vendor)
+// ----------------------
 router.post("/:id/message", protect, async (req, res) => {
   try {
     const bargain = await Bargain.findById(req.params.id);
-    if (!bargain) {
-      return res.status(404).json({ msg: "Bargain not found" });
-    }
+    if (!bargain) return res.status(404).json({ msg: "Bargain not found" });
 
+    // Determine sender role based on logged-in user
     const sender = req.user.role === "vendor" ? "vendor" : "customer";
     const { text, price } = req.body;
 
+    // Push new message to messages array
     bargain.messages.push({ sender, text, price });
     await bargain.save();
+
     res.json(bargain);
   } catch (err) {
     console.error("Error sending message:", err);
@@ -43,9 +47,9 @@ router.post("/:id/message", protect, async (req, res) => {
   }
 });
 
-
-
-// Get all bargains for a vendor
+// ----------------------
+// Vendor: Get all bargains related to them
+// ----------------------
 router.get("/vendor", protect, async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
@@ -53,8 +57,8 @@ router.get("/vendor", protect, async (req, res) => {
     }
 
     const bargains = await Bargain.find({ vendor: req.user.id })
-      .populate("product", "name price")
-      .populate("customer", "name email");
+      .populate("product", "name price")   // include product name & price
+      .populate("customer", "name email"); // include customer details
 
     res.json(bargains);
   } catch (err) {
@@ -63,15 +67,13 @@ router.get("/vendor", protect, async (req, res) => {
   }
 });
 
-
-
-// Vendor rejects bargain
+// ----------------------
+// Vendor rejects a bargain
+// ----------------------
 router.post("/:id/reject", protect, async (req, res) => {
   try {
     const bargain = await Bargain.findById(req.params.id);
-    if (!bargain) {
-      return res.status(404).json({ msg: "Bargain not found" });
-    }
+    if (!bargain) return res.status(404).json({ msg: "Bargain not found" });
 
     if (req.user.role !== "vendor") {
       return res.status(403).json({ msg: "Only vendors can reject bargains" });
@@ -86,8 +88,9 @@ router.post("/:id/reject", protect, async (req, res) => {
   }
 });
 
-
-// Get all bargains for a customer
+// ----------------------
+// Customer: Get all bargains they are involved in
+// ----------------------
 router.get("/customer", protect, async (req, res) => {
   try {
     if (req.user.role !== "customer") {
@@ -105,10 +108,9 @@ router.get("/customer", protect, async (req, res) => {
   }
 });
 
-
-
-
+// ----------------------
 // Customer rejects bargain
+// ----------------------
 router.post("/:id/customer-reject", protect, async (req, res) => {
   try {
     const bargain = await Bargain.findById(req.params.id);
@@ -120,7 +122,6 @@ router.post("/:id/customer-reject", protect, async (req, res) => {
 
     bargain.status = "rejected";
     await bargain.save();
-
     res.json(bargain);
   } catch (err) {
     console.error("Error rejecting bargain:", err);
@@ -128,8 +129,9 @@ router.post("/:id/customer-reject", protect, async (req, res) => {
   }
 });
 
-
-// Customer makes counter-offer
+// ----------------------
+// Customer makes a counter-offer
+// ----------------------
 router.post("/:id/counter", protect, async (req, res) => {
   try {
     const bargain = await Bargain.findById(req.params.id);
@@ -150,17 +152,15 @@ router.post("/:id/counter", protect, async (req, res) => {
   }
 });
 
-
-// Delete a bargain (customer or vendor can delete)
+// ----------------------
+// Delete a bargain (either vendor or customer involved)
+// ----------------------
 router.delete("/:id", protect, async (req, res) => {
   try {
     const bargain = await Bargain.findById(req.params.id);
+    if (!bargain) return res.status(404).json({ msg: "Bargain not found" });
 
-    if (!bargain) {
-      return res.status(404).json({ msg: "Bargain not found" });
-    }
-
-    // Only the customer who created it OR the vendor involved can delete
+    // Ensure only the vendor or customer who is part of the bargain can delete it
     if (
       bargain.customer.toString() !== req.user.id &&
       bargain.vendor.toString() !== req.user.id
@@ -176,32 +176,30 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
-// Vendor or customer accepts bargain
+// ----------------------
+// Vendor OR Customer accepts bargain
+// ----------------------
 router.post("/:id/accept", protect, async (req, res) => {
   try {
     let bargain = await Bargain.findById(req.params.id);
+    if (!bargain) return res.status(404).json({ msg: "Bargain not found" });
 
-    if (!bargain) {
-      return res.status(404).json({ msg: "Bargain not found" });
-    }
-
+    // Only vendor or customer can accept
     if (req.user.role !== "vendor" && req.user.role !== "customer") {
       return res.status(403).json({ msg: "Unauthorized" });
     }
 
+    // Final agreed price is either provided or last offered price
     const finalPrice =
       req.body.price || bargain.messages[bargain.messages.length - 1]?.price;
 
-    if (!finalPrice) {
-      return res.status(400).json({ msg: "Final price is required" });
-    }
+    if (!finalPrice) return res.status(400).json({ msg: "Final price is required" });
 
     bargain.status = "accepted";
     bargain.finalPrice = finalPrice;
     await bargain.save();
-    
 
-    // ✅ repopulate before sending response so frontend has product & customer details
+    // Repopulate relations before sending to frontend
     bargain = await Bargain.findById(req.params.id)
       .populate("product", "name price")
       .populate("customer", "name email")
@@ -214,11 +212,12 @@ router.post("/:id/accept", protect, async (req, res) => {
   }
 });
 
-// Customer accepts bargain explicitly
+// ----------------------
+// Customer explicitly accepts bargain
+// ----------------------
 router.post("/:id/customer-accept", protect, async (req, res) => {
   try {
     let bargain = await Bargain.findById(req.params.id);
-
     if (!bargain) return res.status(404).json({ msg: "Bargain not found" });
 
     if (req.user.role !== "customer") {
@@ -228,14 +227,13 @@ router.post("/:id/customer-accept", protect, async (req, res) => {
     const finalPrice =
       req.body.price || bargain.messages[bargain.messages.length - 1]?.price;
 
-    if (!finalPrice) {
-      return res.status(400).json({ msg: "Final price is required" });
-    }
+    if (!finalPrice) return res.status(400).json({ msg: "Final price is required" });
 
     bargain.status = "accepted";
     bargain.finalPrice = finalPrice;
     await bargain.save();
 
+    // Repopulate with product and vendor details for frontend
     bargain = await Bargain.findById(req.params.id)
       .populate("product", "name price")
       .populate("vendor", "name email");
@@ -246,6 +244,5 @@ router.post("/:id/customer-accept", protect, async (req, res) => {
     res.status(500).json({ msg: "Error accepting bargain" });
   }
 });
-
 
 export default router;
